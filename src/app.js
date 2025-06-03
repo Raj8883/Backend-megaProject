@@ -9,10 +9,16 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json({limit: '50kb'}));
-app.use(express.urlencoded({limit: '50kb',extended: true}));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 app.use(express.static("public"));
 app.use(cookieParser());
+
+// Importing routes
+import userRouter from './routes/user.routes.js';
+
+//  routes declaration
+app.use('/api/v1/users', userRouter);
 
 
 

@@ -1,8 +1,8 @@
 
 const asyncHandler = (requestHandler) => {
-    (req,res,next)=>{
-        Promise.resolve(requestHandler(req,res,next))
-        .catch((error)=>next(error));
+    return (req, res, next) => {
+        Promise.resolve(requestHandler(req, res, next))
+            .catch((error) => next(error));
     }
 }
 
@@ -15,7 +15,7 @@ const asyncHandler = (requestHandler) => {
 //             message: error.message || 'Internal Server Error',
 //         });
 //     }
-  
+
 // };
 
-export {asyncHandler};
+export { asyncHandler }
