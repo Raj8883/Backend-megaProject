@@ -8,11 +8,15 @@ import Jwt from 'jsonwebtoken';
 
 
 
-const generateAccessAndRefreshToken = async (userId) => {
+const generateAccessAndRefreshToken = async (userid) => {
     try {
-        const user = await User.findById(userId)
+        const user = await User.findById(userid)
+        
         const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()
+
+        console.log(accessToken);
+        console.log(refreshToken);
 
         user.refreshToken = refreshToken
         await user.save({ validateBeforeSave: false })
@@ -47,7 +51,14 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, 'User already exists with this username or email');
     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+    let avatarLocalPath ;
+    if (req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0) {
+        avatarLocalPath = req.files.avatar[0].path
+    }
+
+
+    //console.log(avatarLocalPath);
+
     let coverImageLocalPath;
     if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
         coverImageLocalPath = req.files.coverImage[0].path
@@ -69,7 +80,7 @@ const registerUser = asyncHandler(async (req, res) => {
         username: username.toLowerCase(),
         password,
         email,
-        avatar: avatar?.url || "",
+        avatar: avatar?.url,
         coverImage: coverImage?.url || null,
     });
 
@@ -100,13 +111,15 @@ const loginUser = asyncHandler(async (req, res) => {
     // Here is an alternative of above code based on logic discussed in video:
     // if (!(username || email)) {throw new ApiError(400, "username or email is required")}
 
-    const user = User.findOne({ $or: [{ username }, { email }] })
+    const user = await User.findOne({ $or: [{ username }, { email }] });
 
     if (!user) {
         throw new ApiError(404, "User does not exist")
     }
 
     const PasswordValid = await user.isPasswordCorrect(password);
+    //console.log(password);
+    //console.log(PasswordValid);
 
     if (!PasswordValid) {
         throw new ApiError(401, "Invalid user credentials")
@@ -399,5 +412,5 @@ const getWatchHistroy = asyncHandler(async (req, res) => {
         )
 });
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateAvatar, updateCoverImage, getUserChannelProfile,getWatchHistroy };
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateAvatar, updateCoverImage, getUserChannelProfile, getWatchHistroy };
 
